@@ -11,6 +11,7 @@ export default function Tables({
   customCellRenderer,
   Title,
   update,
+  handleUpdate,
   startDate,
   endDate,
   onStartDateChange,
@@ -195,7 +196,7 @@ export default function Tables({
                               <Dropdown.Item
                                 className="dropdown-item"
                                 to="#"
-                                onClick={() => update(item.id)}
+                                onClick={() => handleUpdate(item.id)}
                               >
                                 {"Update"}
                                 <i className="fa-solid fa-pen-nib ps-2"></i>
@@ -210,7 +211,7 @@ export default function Tables({
                               >
                                 {"Inovices"}
                                 Inovices{" "}
-                                <i class="fa-regular fa-file-lines"></i>
+                                <i className="fa-regular fa-file-lines"></i>
                               </Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>

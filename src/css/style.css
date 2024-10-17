@@ -54332,4 +54332,8 @@ html[dir="rtl"]
   margin: 1px;
 }
 
+.offcanvas-end {
+  overflow-y: scroll;
+}
+
 /*# sourceMappingURL=style.css.map */
