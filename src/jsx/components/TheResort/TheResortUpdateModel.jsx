@@ -10,18 +10,10 @@ import { Field, FormikProvider, useFormik } from "formik";
 import swal from "sweetalert";
 import { ThreeDots } from "react-loader-spinner";
 import { Link } from "react-router-dom";
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  Autocomplete,
-} from "@react-google-maps/api";
+import { GoogleMap, Marker, Autocomplete } from "@react-google-maps/api";
 import Multiselect from "multiselect-react-dropdown";
 
 // Define libraries outside of the component
-const libraries = ["places"];
-const apiKey = "AIzaSyAItmPJt0PQy4507Pu5j1f4-VFe77RjqvU";
-
 const TheResortUpdateModel = forwardRef((props, ref) => {
   // States
   const [isLoading, setIsLoading] = useState(false);
@@ -33,160 +25,12 @@ const TheResortUpdateModel = forwardRef((props, ref) => {
     lng: null,
   });
   const [addEmploye, setAddEmploye] = useState(false); // Added state for modal visibility
-
-  // Function to show the modal
-  useImperativeHandle(ref, () => ({
-    showUpdateModal() {
-      // Set the values in Formik
-      formikObj.setValues({
-        ...props.resortData,
-        // Ensure latitude and longitude are set correctly
-        latitude: parseFloat(props.resortData.latitude),
-        longitude: parseFloat(props.resortData.longitude),
-      });
-      setAddEmploye(true); // Show the modal
-    },
-  }));
-
-  const handleClose = () => setAddEmploye(false);
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    const imagesArray = files.map((file) => URL.createObjectURL(file));
-    const updatedImages = [...selectedImages, ...imagesArray];
-    setSelectedImages(updatedImages);
-  };
-
-  const removeImage = (index) => {
-    const updatedImages = [...selectedImages];
-    updatedImages.splice(index, 1);
-    setSelectedImages(updatedImages);
-  };
-
-  // Function to update data
-  const updateData = async (values) => {
-    setIsLoading(true);
-    try {
-      await axios.put(
-        `http://localhost:8082/Restore/${props.resortId}`,
-        values,
-        {
-          headers: {
-            token: localStorage.getItem("tkn"),
-          },
-        }
-      );
-      swal("Updated Successfully");
-      handleClose();
-      props.refresh();
-    } catch (error) {
-      setErrMsg("An error occurred while updating the resort.");
-    }
-    setIsLoading(false);
-  };
-
-  const onSelectFacility = (selectedList, selectedItem) => {
-    const updatedSelections = selectedList.map((item) => ({
-      id: item.id,
-      facility: item.facility,
-    }));
-    formikObj.setFieldValue("facility", updatedSelections);
-    // Additional logic if needed
-  };
-  const onSelectAmenty = (selectedList, selectedItem) => {
-    const updatedSelections = selectedList.map((item) => ({
-      id: item.id,
-      amenity: item.amenity,
-    }));
-    formikObj.setFieldValue("amenity", updatedSelections);
-    // Additional logic if needed
-  };
-
-  const onRemoveAmenty = (selectedList, removedItem) => {
-    const updatedSelections = selectedList.map((item) => ({
-      id: item.id,
-      amenity: item.amenity,
-    }));
-    formikObj.setFieldValue("amenity", updatedSelections);
-    // Additional logic if needed
-  };
-  const onRemovefacilty = (selectedList, removedItem) => {
-    const updatedSelections = selectedList.map((item) => ({
-      id: item.id,
-      facility: item.facility,
-    }));
-    formikObj.setFieldValue("facility", updatedSelections);
-    // Additional logic if needed
-  };
-
   // google search handling
   const [autocomplete, setAutocomplete] = useState(null); // State to hold the Autocomplete instance
   const [searchValue, setSearchValue] = useState(""); // State for the search input
   const [searchError, setSearchError] = useState(null);
 
-  // Google Maps handling
-  const onLoad = (autocomplete) => {
-    setAutocomplete(autocomplete);
-  };
-
-  const onPlaceChanged = () => {
-    if (autocomplete !== null) {
-      const place = autocomplete.getPlace();
-      handlePlaceSelection(place);
-    } else {
-      console.error("Autocomplete is not loaded yet!");
-    }
-  };
-
-  const handlePlaceSelection = (place) => {
-    if (place.geometry && place.geometry.location) {
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      setCenter({ lat, lng });
-      setSelectedLocation({ lat, lng });
-      formikObj.setFieldValue("latitude", lat);
-      formikObj.setFieldValue("longitude", lng);
-      setSearchError(null);
-    } else {
-      setSearchError("No location found for the selected place.");
-    }
-  };
-
-  const handleMapClick = (event) => {
-    const lat = event.latLng.lat();
-    const lng = event.latLng.lng();
-    setCenter({ lat, lng });
-    setSelectedLocation({ lat, lng });
-    formikObj.setFieldValue("latitude", lat);
-    formikObj.setFieldValue("longitude", lng);
-  };
-
-  const handleSearchClick = () => {
-    if (searchValue.trim() !== "") {
-      const service = new window.google.maps.places.PlacesService(
-        document.createElement("div")
-      );
-      service.findPlaceFromQuery(
-        {
-          query: searchValue,
-          fields: ["geometry", "name"],
-        },
-        (results, status) => {
-          if (
-            status === window.google.maps.places.PlacesServiceStatus.OK &&
-            results.length > 0
-          ) {
-            handlePlaceSelection(results[0]);
-          } else {
-            setSearchError(
-              "No results found. Please try a different search term."
-            );
-          }
-        }
-      );
-    }
-  };
-
+  // reset data every time the component render
   // Variables
   let Restore = {
     Title: "",
@@ -224,6 +68,7 @@ const TheResortUpdateModel = forwardRef((props, ref) => {
     },
   });
 
+  // use effect
   useEffect(() => {
     // Update form values when resortData changes
     formikObj.setValues({
@@ -250,6 +95,164 @@ const TheResortUpdateModel = forwardRef((props, ref) => {
     });
   }, [props.resortData]);
 
+  // Function to show the modal
+  useImperativeHandle(ref, () => ({
+    showUpdateModal() {
+      // Set the values in Formik
+      formikObj.setValues({
+        ...props.resortData,
+        // Ensure latitude and longitude are set correctly
+        latitude: parseFloat(props.resortData.latitude),
+        longitude: parseFloat(props.resortData.longitude),
+      });
+      setAddEmploye(true); // Show the modal
+    },
+  }));
+
+  // close the component on hide
+  const handleClose = () => setAddEmploye(false);
+
+  // add and remove image from states
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const imagesArray = files.map((file) => URL.createObjectURL(file));
+    const updatedImages = [...selectedImages, ...imagesArray];
+    setSelectedImages(updatedImages);
+  };
+
+  const removeImage = (index) => {
+    const updatedImages = [...selectedImages];
+    updatedImages.splice(index, 1);
+    setSelectedImages(updatedImages);
+  };
+
+  // select an remove facilities
+  const onSelectFacility = (selectedList, selectedItem) => {
+    const updatedSelections = selectedList.map((item) => ({
+      id: item.id,
+      facility: item.facility,
+    }));
+    formikObj.setFieldValue("facility", updatedSelections);
+    // Additional logic if needed
+  };
+
+  const onRemovefacilty = (selectedList, removedItem) => {
+    const updatedSelections = selectedList.map((item) => ({
+      id: item.id,
+      facility: item.facility,
+    }));
+    formikObj.setFieldValue("facility", updatedSelections);
+    // Additional logic if needed
+  };
+
+  // select an remove amenities
+  const onSelectAmenty = (selectedList, selectedItem) => {
+    const updatedSelections = selectedList.map((item) => ({
+      id: item.id,
+      amenity: item.amenity,
+    }));
+    formikObj.setFieldValue("amenity", updatedSelections);
+    // Additional logic if needed
+  };
+
+  const onRemoveAmenty = (selectedList, removedItem) => {
+    const updatedSelections = selectedList.map((item) => ({
+      id: item.id,
+      amenity: item.amenity,
+    }));
+    formikObj.setFieldValue("amenity", updatedSelections);
+    // Additional logic if needed
+  };
+
+  // Google Maps handling
+  // loading
+  const onLoad = (autocomplete) => {
+    setAutocomplete(autocomplete);
+  };
+
+  // change plaece
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      handlePlaceSelection(place);
+    } else {
+      console.error("Autocomplete is not loaded yet!");
+    }
+  };
+
+  // select place with marker
+  const handlePlaceSelection = (place) => {
+    if (place.geometry && place.geometry.location) {
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      setCenter({ lat, lng });
+      setSelectedLocation({ lat, lng });
+      formikObj.setFieldValue("latitude", lat);
+      formikObj.setFieldValue("longitude", lng);
+      setSearchError(null);
+    } else {
+      setSearchError("No location found for the selected place.");
+    }
+  };
+
+  // on click map
+  const handleMapClick = (event) => {
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+    setCenter({ lat, lng });
+    setSelectedLocation({ lat, lng });
+    formikObj.setFieldValue("latitude", lat);
+    formikObj.setFieldValue("longitude", lng);
+  };
+
+  // on search on map
+  const handleSearchClick = () => {
+    if (searchValue.trim() !== "") {
+      const service = new window.google.maps.places.PlacesService(
+        document.createElement("div")
+      );
+      service.findPlaceFromQuery(
+        {
+          query: searchValue,
+          fields: ["geometry", "name"],
+        },
+        (results, status) => {
+          if (
+            status === window.google.maps.places.PlacesServiceStatus.OK &&
+            results.length > 0
+          ) {
+            handlePlaceSelection(results[0]);
+          } else {
+            setSearchError(
+              "No results found. Please try a different search term."
+            );
+          }
+        }
+      );
+    }
+  };
+  // Function to update data
+  async function updateData(values) {
+    setIsLoading(true);
+    try {
+      await axios.put(
+        `http://localhost:8082/Restore/${props.resortId}`,
+        values,
+        {
+          headers: {
+            token: localStorage.getItem("tkn"),
+          },
+        }
+      );
+      swal("Updated Successfully");
+      handleClose();
+      props.refresh();
+    } catch (error) {
+      setErrMsg("An error occurred while updating the resort.");
+    }
+    setIsLoading(false);
+  }
+  // return the body of the component
   return (
     <Offcanvas
       show={addEmploye}
@@ -270,50 +273,40 @@ const TheResortUpdateModel = forwardRef((props, ref) => {
             <form onSubmit={formikObj.handleSubmit}>
               <div className="row">
                 <div className="col-lg-12 mb-1">
-                  <LoadScript
-                    googleMapsApiKey={apiKey} // Replace with your actual API key
-                    libraries={libraries}
-                    language="ar" // Set language here, use 'en' for English
+                  <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+                    <div className="d-flex align-items-center gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Search for a location..."
+                        className="form-control"
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={handleSearchClick}
+                      >
+                        Search
+                      </button>
+                    </div>
+                  </Autocomplete>
+                  {searchError && (
+                    <div className="alert alert-danger">{searchError}</div>
+                  )}
+                  <GoogleMap
+                    mapContainerStyle={{ width: "100%", height: "400px" }}
+                    center={center}
+                    zoom={10}
+                    onClick={handleMapClick} // Handle map click to select location
                   >
-                    <Autocomplete
-                      onLoad={onLoad}
-                      onPlaceChanged={onPlaceChanged}
-                    >
-                      <div className="d-flex align-items-center gap-2 mb-2">
-                        <input
-                          type="text"
-                          placeholder="Search for a location..."
-                          className="form-control"
-                          value={searchValue}
-                          onChange={(e) => setSearchValue(e.target.value)}
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={handleSearchClick}
-                        >
-                          Search
-                        </button>
-                      </div>
-                    </Autocomplete>
-                    {searchError && (
-                      <div className="alert alert-danger">{searchError}</div>
+                    {selectedLocation.lat && selectedLocation.lng && (
+                      <Marker
+                        position={selectedLocation} // Set the position of the marker
+                        title="Selected Location" // Optional: Title for the marker
+                      />
                     )}
-                    <GoogleMap
-                      mapContainerStyle={{ width: "100%", height: "400px" }}
-                      center={center}
-                      zoom={10}
-                      onClick={handleMapClick} // Handle map click to select location
-                    >
-                      {/* Render the marker if a location is selected */}
-                      {selectedLocation.lat && selectedLocation.lng && (
-                        <Marker
-                          position={selectedLocation} // Set the position of the marker
-                          title="Selected Location" // Optional: Title for the marker
-                        />
-                      )}
-                    </GoogleMap>
-                  </LoadScript>
+                  </GoogleMap>
                 </div>
                 <div className="col-lg-6 mb-2">
                   <div className="form-group mb-3">

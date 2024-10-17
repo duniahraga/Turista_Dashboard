@@ -10,13 +10,7 @@ import { Field, FormikProvider, useFormik } from "formik";
 import swal from "sweetalert";
 import { ThreeDots } from "react-loader-spinner";
 import { Link } from "react-router-dom";
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  Autocomplete,
-} from "@react-google-maps/api";
-
+import { GoogleMap, Marker, Autocomplete } from "@react-google-maps/api";
 import Multiselect from "multiselect-react-dropdown";
 
 const TheResortAddModel = forwardRef((props, ref) => {
@@ -27,9 +21,18 @@ const TheResortAddModel = forwardRef((props, ref) => {
   const [errMsg, seterrMsg] = useState(null);
   const handelClose = () => setAddEmploye(false);
   const [ResortSettingAPIdata, setResortSettingAPIdata] = useState([]);
-
   const [selectedImages, setSelectedImages] = useState([]);
+  const [center, setCenter] = useState({ lat: 32.8872, lng: 13.1913 }); // Initial center set to Tripoli, Libya
+  const [selectedLocation, setSelectedLocation] = useState({
+    lat: null,
+    lng: null,
+  });
+  // google search handling
+  const [autocomplete, setAutocomplete] = useState(null); // State to hold the Autocomplete instance
+  const [searchValue, setSearchValue] = useState(""); // State for the search input
+  const [searchError, setSearchError] = useState(null);
 
+  // select and remove image from states
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const imagesArray = files.map((file) => URL.createObjectURL(file));
@@ -61,6 +64,7 @@ const TheResortAddModel = forwardRef((props, ref) => {
     }
   };
 
+  // get data
   useEffect(() => {
     getResortData();
   }, []);
@@ -86,12 +90,7 @@ const TheResortAddModel = forwardRef((props, ref) => {
     setisloading(false);
   }
 
-  const [center, setCenter] = useState({ lat: 32.8872, lng: 13.1913 }); // Initial center set to Tripoli, Libya
-  const [selectedLocation, setSelectedLocation] = useState({
-    lat: null,
-    lng: null,
-  });
-
+  // select an remove facilities
   const onSelectFacility = (selectedList, selectedItem) => {
     const updatedSelections = selectedList.map((item) => ({
       id: item.id,
@@ -100,6 +99,16 @@ const TheResortAddModel = forwardRef((props, ref) => {
     formikObj.setFieldValue("facility", updatedSelections);
     // Additional logic if needed
   };
+  const onRemovefacilty = (selectedList, removedItem) => {
+    const updatedSelections = selectedList.map((item) => ({
+      id: item.id,
+      facility: item.facility,
+    }));
+    formikObj.setFieldValue("facility", updatedSelections);
+    // Additional logic if needed
+  };
+
+  // select and remove amenties
   const onSelectAmenty = (selectedList, selectedItem) => {
     const updatedSelections = selectedList.map((item) => ({
       id: item.id,
@@ -108,21 +117,12 @@ const TheResortAddModel = forwardRef((props, ref) => {
     formikObj.setFieldValue("amenity", updatedSelections);
     // Additional logic if needed
   };
-
   const onRemoveAmenty = (selectedList, removedItem) => {
     const updatedSelections = selectedList.map((item) => ({
       id: item.id,
       amenity: item.amenity,
     }));
     formikObj.setFieldValue("amenity", updatedSelections);
-    // Additional logic if needed
-  };
-  const onRemovefacilty = (selectedList, removedItem) => {
-    const updatedSelections = selectedList.map((item) => ({
-      id: item.id,
-      facility: item.facility,
-    }));
-    formikObj.setFieldValue("facility", updatedSelections);
     // Additional logic if needed
   };
 
@@ -180,15 +180,13 @@ const TheResortAddModel = forwardRef((props, ref) => {
     },
   });
 
-  // google search handling
-  const [autocomplete, setAutocomplete] = useState(null); // State to hold the Autocomplete instance
-  const [searchValue, setSearchValue] = useState(""); // State for the search input
-  const [searchError, setSearchError] = useState(null);
-
+  // handle google map
+  // on load
   const onLoad = (autocomplete) => {
     setAutocomplete(autocomplete); // Set the Autocomplete instance
   };
 
+  // on place changed
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
@@ -198,6 +196,7 @@ const TheResortAddModel = forwardRef((props, ref) => {
     }
   };
 
+  // handle place selection
   const handlePlaceSelection = (place) => {
     if (place.geometry && place.geometry.location) {
       const lat = place.geometry.location.lat();
@@ -211,7 +210,7 @@ const TheResortAddModel = forwardRef((props, ref) => {
       setSearchError("No location found for the selected place.");
     }
   };
-
+  // handle search click
   const handleSearchClick = () => {
     if (searchValue.trim() !== "") {
       const service = new window.google.maps.places.PlacesService(
@@ -237,7 +236,7 @@ const TheResortAddModel = forwardRef((props, ref) => {
       );
     }
   };
-
+  // handle map click
   const handleMapClick = (event) => {
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
@@ -248,6 +247,7 @@ const TheResortAddModel = forwardRef((props, ref) => {
     console.log("Selected location:", { lat, lng }); // Log the selected location
   };
 
+  // return the body of the component
   return (
     <Offcanvas
       show={addEmploye}
@@ -288,50 +288,44 @@ const TheResortAddModel = forwardRef((props, ref) => {
               <form onSubmit={formikObj.handleSubmit}>
                 <div className="row">
                   <div className="col-lg-12 mb-1">
-                    <LoadScript
-                      googleMapsApiKey="AIzaSyAItmPJt0PQy4507Pu5j1f4-VFe77RjqvU" // Replace with your actual API key
-                      libraries={["places"]}
-                      language="ar" // Set language here, use 'en' for English
+                    <Autocomplete
+                      onLoad={onLoad}
+                      onPlaceChanged={onPlaceChanged}
                     >
-                      <Autocomplete
-                        onLoad={onLoad}
-                        onPlaceChanged={onPlaceChanged}
-                      >
-                        <div className="d-flex align-items-center gap-2 mb-2">
-                          <input
-                            type="text"
-                            placeholder="Search for a location..."
-                            className="form-control"
-                            value={searchValue}
-                            onChange={(e) => setSearchValue(e.target.value)}
-                          />
-                          <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={handleSearchClick}
-                          >
-                            Search
-                          </button>
-                        </div>
-                      </Autocomplete>
-                      {searchError && (
-                        <div className="alert alert-danger">{searchError}</div>
+                      <div className="d-flex align-items-center gap-2 mb-2">
+                        <input
+                          type="text"
+                          placeholder="Search for a location..."
+                          className="form-control"
+                          value={searchValue}
+                          onChange={(e) => setSearchValue(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={handleSearchClick}
+                        >
+                          Search
+                        </button>
+                      </div>
+                    </Autocomplete>
+                    {searchError && (
+                      <div className="alert alert-danger">{searchError}</div>
+                    )}
+                    <GoogleMap
+                      mapContainerStyle={{ width: "100%", height: "400px" }}
+                      center={center}
+                      zoom={10}
+                      onClick={handleMapClick} // Handle map click to select location
+                    >
+                      {/* Render the marker if a location is selected */}
+                      {selectedLocation.lat && selectedLocation.lng && (
+                        <Marker
+                          position={selectedLocation} // Set the position of the marker
+                          title="Selected Location" // Optional: Title for the marker
+                        />
                       )}
-                      <GoogleMap
-                        mapContainerStyle={{ width: "100%", height: "400px" }}
-                        center={center}
-                        zoom={10}
-                        onClick={handleMapClick} // Handle map click to select location
-                      >
-                        {/* Render the marker if a location is selected */}
-                        {selectedLocation.lat && selectedLocation.lng && (
-                          <Marker
-                            position={selectedLocation} // Set the position of the marker
-                            title="Selected Location" // Optional: Title for the marker
-                          />
-                        )}
-                      </GoogleMap>
-                    </LoadScript>
+                    </GoogleMap>
                   </div>
                   <div className="col-lg-6 mb-2">
                     <div className="form-group mb-3">

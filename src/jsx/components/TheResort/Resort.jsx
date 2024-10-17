@@ -6,13 +6,14 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 const Resort = () => {
+  // states
   const [APIdata, setAPIdata] = useState([]);
-
+  const [updateResort, setUpdateResort] = useState([]);
+  // refs
   const employe = useRef();
   const Update = useRef();
-  const [updateResort, setUpdateResort] = useState([]);
 
-  //============================Display all data=====================================
+  // get all data
   function getAllData() {
     axios
       .get(`http://localhost:8082/Restore`)
@@ -22,14 +23,12 @@ const Resort = () => {
       .catch((err) => console.log(err));
   }
 
-  // ===================================================================================
-
-  //showin items in tabel
+  // get all data on load
   useEffect(() => {
     getAllData();
   }, []);
 
-  // ====================update========================================================
+  // update data
   const handleUpdate = useCallback(
     (id) => {
       const item = APIdata.find((item) => id === item.id);
@@ -41,6 +40,7 @@ const Resort = () => {
     [APIdata]
   );
 
+  // headers of the table
   const headersTitle = [
     { label: " ID", key: "id" },
     { label: "Title", key: "Title" },
@@ -50,7 +50,7 @@ const Resort = () => {
     { label: "Longitude", key: "longitude" },
     { label: "Chalet", key: "status" }, // Adding defaultValue
   ];
-  // we need to add from backend
+  // custom cell renderer
   const customCellRenderer = {
     status: (row) => (
       <span>
@@ -64,9 +64,10 @@ const Resort = () => {
       </span>
     ),
   };
-
+  // return the body of the component
   return (
     <>
+      {/* table of the data */}
       <Tables
         data={APIdata}
         headers={headersTitle}
@@ -75,14 +76,17 @@ const Resort = () => {
         Title=" + Add Restore "
         update={Update}
         handleUpdate={handleUpdate}
+        refresh={getAllData}
       />
 
+      {/* add data */}
       <TheRestoreModelAdd
         ref={employe}
         Title="Add Resort"
         getAllData={getAllData}
       />
 
+      {/* update data */}
       {updateResort && (
         <TheResortUpdateModel
           ref={Update}

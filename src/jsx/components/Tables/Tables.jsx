@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CSVLink } from "react-csv";
 
 import { Dropdown } from "react-bootstrap";
+import axios from "axios";
 
 export default function Tables({
   data,
@@ -16,7 +17,9 @@ export default function Tables({
   endDate,
   onStartDateChange,
   onEndDateChange,
+  refresh,
 }) {
+  // states
   const csvlink = {
     headers: headers,
     data: data,
@@ -33,6 +36,17 @@ export default function Tables({
     if (currentPage !== 1) {
       setCurrentPage(currentPage - 1);
     }
+  }
+  function handleDelete(id) {
+    axios
+      .delete(`http://localhost:8082/Restore/${id}`)
+      .then((res) => {
+        console.log(res);
+        refresh();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
   function changeCPage(id) {
     setCurrentPage(id);
@@ -190,7 +204,11 @@ export default function Tables({
                               <i className="fa-solid fa-ellipsis"></i>
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="dropdown-menu">
-                              <Dropdown.Item className="dropdown-item" to="#">
+                              <Dropdown.Item
+                                className="dropdown-item"
+                                to="#"
+                                onClick={() => handleDelete(item.id)}
+                              >
                                 Delete <i className="fa-solid fa-ban ps-2"></i>
                               </Dropdown.Item>
                               <Dropdown.Item
