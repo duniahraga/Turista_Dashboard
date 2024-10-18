@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useEffect,
-} from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { Offcanvas } from "react-bootstrap";
 import axios from "axios";
 import { FormikProvider, useFormik } from "formik";
@@ -11,74 +6,71 @@ import swal from "sweetalert";
 import { ThreeDots } from "react-loader-spinner";
 import { Link } from "react-router-dom";
 
-const GuestsAddModel = forwardRef((props, ref) => {
+const OtherServicesAddModel = forwardRef((props, ref) => {
   //States
   const [addEmploye, setAddEmploye] = useState(false);
   //APi Test
   const [isloading, setisloading] = useState(false);
   const [errMsg, seterrMsg] = useState(null);
+  const handelClose = () => setAddEmploye(false);
 
   //varibels
-  let Guests = {
-    Guests: "",
+  let OtherServices = {
+    Services: "",
     Price: "",
   };
 
   //validations
   const formikObj = useFormik({
-    initialValues: Guests,
+    initialValues: OtherServices,
     onSubmit: addData,
     validate: function (value) {
       seterrMsg(null);
 
       const errors = {};
 
-      if (value.Guests.length < 3 || value.Guests.length > 66) {
-        errors.Guests = "The Guests  must be not less than 3 leters long  ";
+      if (value.Services.length < 3 || value.Services.length > 66) {
+        errors.Services = "The Services  must be not less than 3 leters long  ";
       }
       if (value.Price.length < 3 || value.Price.length > 66) {
         errors.Price = "The Price  must be not less than 1 Number  long  ";
       }
 
-      console.log(errors);
       return errors;
     },
   });
 
-  // handle close the component
-  const handelClose = () => setAddEmploye(false);
-
-  // Function to show the modal
   useImperativeHandle(ref, () => ({
     showEmployeModal() {
       setAddEmploye(true);
     },
   }));
 
-    //functions
-	async function addData(value) {
-		setisloading(true);
-	
-		try {
-		  const response = await axios
-			.post("http://localhost:8082/Guests", value, {
-			  headers: {
-				token: localStorage.getItem("tkn"),
-			  },
-			})
-			.then((res) => swal("add Successfly"));
-		  formikObj.resetForm();
-		  handelClose();
-		  props.getAllData();
-		} catch (error) {}
-	
-		setisloading(false);
-	  }
+  //functions
+  async function addData(value) {
+    setisloading(true);
 
+    try {
+      const response = await axios
+        .post("http://localhost:8082/OtherServices", value, {
+          headers: {
+            token: localStorage.getItem("tkn"),
+          },
+        })
+        .then((res) => swal("add Successfly"));
+      formikObj.resetForm();
+      handelClose();
+      props.getAllData();
+    } catch (error) {}
+
+    setisloading(false);
+  }
+
+  //   return the body of the component
   return (
     <Offcanvas
       show={addEmploye}
-      onHide={setAddEmploye}
+      onHide={handelClose}
       className="offcanvas-end customeoff"
       placement="end"
     >
@@ -116,20 +108,21 @@ const GuestsAddModel = forwardRef((props, ref) => {
                 <div className="row">
                   <div className="col-lg-6 mb-2">
                     <div className="form-group mb-3">
-                      <label className="text-label">Guests*</label>
+                      <label className="text-label">Services*</label>
                       <input
                         type="text"
                         multiple
-                        name="Guests"
+                        name="Services"
                         className="form-control"
-                        placeholder="Guests"
+                        placeholder="Services"
                         onBlur={formikObj.handleBlur}
                         onChange={formikObj.handleChange}
-                        value={formikObj.values.Guests}
+                        value={formikObj.values.Services}
                       />
-                      {formikObj.errors.Guests && formikObj.touched.Guests ? (
+                      {formikObj.errors.Services &&
+                      formikObj.touched.Services ? (
                         <div className=" alert alert-danger">
-                          {formikObj.errors.Guests}
+                          {formikObj.errors.Services}
                         </div>
                       ) : (
                         ""
@@ -194,4 +187,4 @@ const GuestsAddModel = forwardRef((props, ref) => {
   );
 });
 
-export default GuestsAddModel;
+export default OtherServicesAddModel;

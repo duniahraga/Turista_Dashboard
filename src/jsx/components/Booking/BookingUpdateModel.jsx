@@ -412,8 +412,8 @@ const BookingUpdateModel = forwardRef((props, ref) => {
       const formattedExitDate = formatDate(dateRange.endDate);
 
       const response = await axios
-        .post(
-          "http://localhost:8082/Booking",
+        .put(
+          `http://localhost:8082/Booking/${props.bookingId}`,
           {
             ...value,
             EntryDate: formattedEntryDate,
@@ -425,7 +425,7 @@ const BookingUpdateModel = forwardRef((props, ref) => {
             },
           }
         )
-        .then((res) => swal("تمت الإضافة بنجاح"));
+        .then((res) => swal("تم التعديل بنجاح"));
       formikObj.resetForm();
       formikObj.setFieldValue("EntryDate", null);
       formikObj.setFieldValue("ExitDate", null);

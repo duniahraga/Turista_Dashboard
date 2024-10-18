@@ -54,7 +54,7 @@ const TheResortAddModel = forwardRef((props, ref) => {
     },
   }));
 
-  //============================Display all data=====================================
+  // get data
   const getResortData = async () => {
     try {
       const response = await axios.get("http://localhost:8082/ResortSettong");
@@ -68,27 +68,6 @@ const TheResortAddModel = forwardRef((props, ref) => {
   useEffect(() => {
     getResortData();
   }, []);
-
-  //functions
-  async function addData(value) {
-    setisloading(true);
-
-    try {
-      const response = await axios
-        .post("http://localhost:8082/Restore", value, {
-          headers: {
-            token: localStorage.getItem("tkn"),
-          },
-        })
-        .then((res) => swal("add Successfly"));
-      formikObj.resetForm();
-      handelClose();
-      setSelectedImages([]);
-      props.getAllData();
-    } catch (error) {}
-
-    setisloading(false);
-  }
 
   // select an remove facilities
   const onSelectFacility = (selectedList, selectedItem) => {
@@ -247,11 +226,32 @@ const TheResortAddModel = forwardRef((props, ref) => {
     console.log("Selected location:", { lat, lng }); // Log the selected location
   };
 
+  //functions
+  async function addData(value) {
+    setisloading(true);
+
+    try {
+      const response = await axios
+        .post("http://localhost:8082/Restore", value, {
+          headers: {
+            token: localStorage.getItem("tkn"),
+          },
+        })
+        .then((res) => swal("add Successfly"));
+      formikObj.resetForm();
+      handelClose();
+      setSelectedImages([]);
+      props.getAllData();
+    } catch (error) {}
+
+    setisloading(false);
+  }
+
   // return the body of the component
   return (
     <Offcanvas
       show={addEmploye}
-      onHide={setAddEmploye}
+      onHide={handelClose}
       className="offcanvas-end customeoff"
       placement="end"
     >

@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useEffect,
-} from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { Offcanvas } from "react-bootstrap";
 import axios from "axios";
 import { FormikProvider, useFormik } from "formik";
@@ -11,7 +6,7 @@ import swal from "sweetalert";
 import { ThreeDots } from "react-loader-spinner";
 import { Link } from "react-router-dom";
 
-const GuestsAddModel = forwardRef((props, ref) => {
+const MealsAddModel = forwardRef((props, ref) => {
   //States
   const [addEmploye, setAddEmploye] = useState(false);
   //APi Test
@@ -19,28 +14,27 @@ const GuestsAddModel = forwardRef((props, ref) => {
   const [errMsg, seterrMsg] = useState(null);
 
   //varibels
-  let Guests = {
-    Guests: "",
+  let Meals = {
+    Meal: "",
     Price: "",
   };
 
   //validations
   const formikObj = useFormik({
-    initialValues: Guests,
+    initialValues: Meals,
     onSubmit: addData,
     validate: function (value) {
       seterrMsg(null);
 
       const errors = {};
 
-      if (value.Guests.length < 3 || value.Guests.length > 66) {
-        errors.Guests = "The Guests  must be not less than 3 leters long  ";
+      if (value.Meal.length < 3 || value.Meal.length > 66) {
+        errors.Meal = "The Meal  must be not less than 3 leters long  ";
       }
       if (value.Price.length < 3 || value.Price.length > 66) {
         errors.Price = "The Price  must be not less than 1 Number  long  ";
       }
 
-      console.log(errors);
       return errors;
     },
   });
@@ -48,37 +42,38 @@ const GuestsAddModel = forwardRef((props, ref) => {
   // handle close the component
   const handelClose = () => setAddEmploye(false);
 
-  // Function to show the modal
+  // handle show the modal
   useImperativeHandle(ref, () => ({
     showEmployeModal() {
       setAddEmploye(true);
     },
   }));
 
-    //functions
-	async function addData(value) {
-		setisloading(true);
-	
-		try {
-		  const response = await axios
-			.post("http://localhost:8082/Guests", value, {
-			  headers: {
-				token: localStorage.getItem("tkn"),
-			  },
-			})
-			.then((res) => swal("add Successfly"));
-		  formikObj.resetForm();
-		  handelClose();
-		  props.getAllData();
-		} catch (error) {}
-	
-		setisloading(false);
-	  }
+  //functions
+  async function addData(value) {
+    setisloading(true);
 
+    try {
+      const response = await axios
+        .post("http://localhost:8082/Meals", value, {
+          headers: {
+            token: localStorage.getItem("tkn"),
+          },
+        })
+        .then((res) => swal("add Successfly"));
+      formikObj.resetForm();
+      handelClose();
+      props.getAllData();
+    } catch (error) {}
+
+    setisloading(false);
+  }
+
+  // return the body of the component
   return (
     <Offcanvas
       show={addEmploye}
-      onHide={setAddEmploye}
+      onHide={handelClose}
       className="offcanvas-end customeoff"
       placement="end"
     >
@@ -98,11 +93,7 @@ const GuestsAddModel = forwardRef((props, ref) => {
               <h1 className="modal-title fs-5" id="exampleModalLabel1">
                 {props.Title}
               </h1>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setAddEmploye(false)}
-              >
+              <button type="button" className="btn-close" onClick={handelClose}>
                 <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
@@ -116,20 +107,20 @@ const GuestsAddModel = forwardRef((props, ref) => {
                 <div className="row">
                   <div className="col-lg-6 mb-2">
                     <div className="form-group mb-3">
-                      <label className="text-label">Guests*</label>
+                      <label className="text-label">Meal*</label>
                       <input
                         type="text"
                         multiple
-                        name="Guests"
+                        name="Meal"
                         className="form-control"
-                        placeholder="Guests"
+                        placeholder="Meal"
                         onBlur={formikObj.handleBlur}
                         onChange={formikObj.handleChange}
-                        value={formikObj.values.Guests}
+                        value={formikObj.values.Meal}
                       />
-                      {formikObj.errors.Guests && formikObj.touched.Guests ? (
+                      {formikObj.errors.Meal && formikObj.touched.Meal ? (
                         <div className=" alert alert-danger">
-                          {formikObj.errors.Guests}
+                          {formikObj.errors.Meal}
                         </div>
                       ) : (
                         ""
@@ -194,4 +185,4 @@ const GuestsAddModel = forwardRef((props, ref) => {
   );
 });
 
-export default GuestsAddModel;
+export default MealsAddModel;

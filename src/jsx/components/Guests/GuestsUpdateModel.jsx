@@ -40,45 +40,57 @@ const GuestsAddModel = forwardRef((props, ref) => {
         errors.Price = "The Price  must be not less than 1 Number  long  ";
       }
 
-      console.log(errors);
       return errors;
     },
   });
 
+  // set values
+  useEffect(() => {
+    formikObj.setValues({
+      id: props.guestsData.id || "",
+      Guests: props.guestsData.Guests || "",
+      Price: props.guestsData.Price || "",
+    });
+  }, [props.guestsData]);
+
   // handle close the component
-  const handelClose = () => setAddEmploye(false);
+  const handelClose = () => {
+    setAddEmploye(false);
+    props.refresh();
+  };
 
   // Function to show the modal
   useImperativeHandle(ref, () => ({
-    showEmployeModal() {
-      setAddEmploye(true);
+    showUpdateModal() {
+      setAddEmploye(true); // Show the modal
     },
   }));
 
-    //functions
-	async function addData(value) {
-		setisloading(true);
-	
-		try {
-		  const response = await axios
-			.post("http://localhost:8082/Guests", value, {
-			  headers: {
-				token: localStorage.getItem("tkn"),
-			  },
-			})
-			.then((res) => swal("add Successfly"));
-		  formikObj.resetForm();
-		  handelClose();
-		  props.getAllData();
-		} catch (error) {}
-	
-		setisloading(false);
-	  }
+  //functions
+  async function addData(value) {
+    setisloading(true);
+
+    try {
+      const response = await axios
+        .put(`http://localhost:8082/Guests/${props.guestsId}`, value, {
+          headers: {
+            token: localStorage.getItem("tkn"),
+          },
+        })
+        .then((res) => {
+          swal("Updated Successfully");
+          formikObj.resetForm();
+          handelClose();
+        });
+    } catch (error) {}
+
+    setisloading(false);
+  }
 
   return (
     <Offcanvas
       show={addEmploye}
-      onHide={setAddEmploye}
+      onHide={handelClose}
       className="offcanvas-end customeoff"
       placement="end"
     >
@@ -98,11 +110,7 @@ const GuestsAddModel = forwardRef((props, ref) => {
               <h1 className="modal-title fs-5" id="exampleModalLabel1">
                 {props.Title}
               </h1>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setAddEmploye(false)}
-              >
+              <button type="button" className="btn-close" onClick={handelClose}>
                 <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
@@ -174,7 +182,7 @@ const GuestsAddModel = forwardRef((props, ref) => {
                         ariaLabel="falling-lines-loading"
                       />
                     ) : (
-                      "Submit"
+                      "Update"
                     )}
                   </button>
                   <Link

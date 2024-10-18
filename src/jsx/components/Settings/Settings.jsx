@@ -1,85 +1,90 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Tables from '../Tables/Tables';
-import { Link } from 'react-router-dom';
-import { Bars } from 'react-loader-spinner';
-import axios from 'axios';
-import SettingAddModel from './SettingAddModel';
+// import dependencies
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import Tables from "../Tables/Tables";
+import axios from "axios";
+// import components
+import SettingsAddModel from "./SettingsAddModel";
+import SettingsUpdateModel from "./SettingsUpdateModel";
 
 const Settings = () => {
-    const [APIdata, setAPIdata] = useState([])
+  // state
+  const [APIdata, setAPIdata] = useState([]);
+  const [updateSetting, setUpdateSetting] = useState([]);
 
-    const employe = useRef();
-    const Update = useRef()
-    const [updateRestore, setupdateRestore] = useState([])
+  // refs
+  const setting = useRef();
+  const Update = useRef();
 
+  // get all data
+  function getAllData() {
+    axios
+      .get(`http://localhost:8082/Setting`)
+      .then((res) => {
+        setAPIdata(res.data);
+      })
+      .catch((err) => console.log(err));
+  }
 
-    //============================Display all data=====================================
-    function getAllData() {
+  // get all data on load
+  useEffect(() => {
+    getAllData();
+  }, []);
 
-        axios.get(`http://localhost:8082/Setting`).then(res => {
-            setAPIdata(res.data)
+  // update data
+  const handleUpdate = useCallback(
+    (id) => {
+      const item = APIdata.find((item) => id === item.id);
+      if (item) {
+        setUpdateSetting(item);
+        Update.current.showUpdateModal();
+      }
+    },
+    [APIdata]
+  );
 
-        })
-            .catch(err => console.log(err))
+  // delete data
+  const deleteData = async (id) => {
+    await axios.delete(`http://localhost:8082/Setting/${id}`);
+  };
 
-    }
+  // headers of the table
+  const headersTitle = [
+    { label: " ID", key: "id" },
+    { label: "Title", key: "Title" },
+    { label: "Auther", key: "Auther" },
+  ];
 
+  // return the body of the component
+  return (
+    <>
+      <Tables
+        data={APIdata}
+        headers={headersTitle}
+        employe={setting}
+        Title="+ Add Setting "
+        update={Update}
+        handleUpdate={handleUpdate}
+        refresh={getAllData}
+        deleteData={deleteData}
+      />
 
+      {/* add data */}
+      <SettingsAddModel
+        ref={setting}
+        Title="Add Setting"
+        getAllData={getAllData}
+        APIdata={APIdata}
+      />
 
-
-    //showin items in tabel
-    useEffect(() => {
-
-        getAllData()
-    }
-        , [])
-
-
-
-    // ====================update========================================================
-    function update(id) {
-        console.log('id', id)
-        Update.current.showUpdateModal()
-        APIdata.map((item) => {
-            if (id === item.id) {
-                return setupdateRestore(item)
-
-
-            }
-        })
-
-
-
-
-    }
-console.log(updateRestore)
-
-const headersTitle = [
-    { label: ' ID', key: 'id' },
-    { label: 'Title', key: 'Title' },
-    { label: 'Auther', key: 'Auther' },
-    
-];
-
-
-
-    return (
-        <>
-            <Tables data={APIdata} headers={headersTitle} employe={employe}
-                Title="+ Add Setting " 
-                update={ update} /> 
-
-            <SettingAddModel
-                ref={employe}
-                Title="Add Setting"
-                getAllData={getAllData}
-                APIdata={APIdata}
-            />
-
-            
-
-        </>
-    );
+      {/* update data */}
+      <SettingsUpdateModel
+        ref={Update}
+        settingData={updateSetting}
+        settingId={updateSetting.id}
+        refresh={getAllData}
+      />
+    </>
+  );
 };
 
 export default Settings;

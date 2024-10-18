@@ -1,86 +1,86 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Tables from '../Tables/Tables';
-import { Link } from 'react-router-dom';
-import { Bars } from 'react-loader-spinner';
-import axios from 'axios';
-import MelasMoadel from './MelasMoadel';
+// import dependencies
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import Tables from "../Tables/Tables";
+import axios from "axios";
+
+import MealsAddModel from "./MealsAddModel";
+import MealsUpdateModel from "./MealsUpdateModel";
 
 const Meals = () => {
-    const [APIdata, setAPIdata] = useState([])
+  // states
+  const [APIdata, setAPIdata] = useState([]);
+  const [updateMeal, setupdateMeal] = useState([]);
 
-    const employe = useRef();
-    const Update = useRef()
-    const [updateRestore, setupdateRestore] = useState([])
+  // refs
+  const employe = useRef();
+  const Update = useRef();
 
+  // get all data
+  function getAllData() {
+    axios
+      .get(`http://localhost:8082/Meals`)
+      .then((res) => {
+        setAPIdata(res.data);
+      })
+      .catch((err) => console.log(err));
+  }
 
-    //============================Display all data=====================================
-    function getAllData() {
+  // get all data on load
+  useEffect(() => {
+    getAllData();
+  }, []);
 
-        axios.get(`http://localhost:8082/Meals`).then(res => {
-            setAPIdata(res.data)
+  // update data
+  const handleUpdate = useCallback(
+    (id) => {
+      const item = APIdata.find((item) => id === item.id);
+      if (item) {
+        setupdateMeal(item);
+        Update.current.showUpdateModal();
+      }
+    },
+    [APIdata]
+  );
 
-        })
-            .catch(err => console.log(err))
+  // delete data
+  const deleteData = async (id) => {
+    await axios.delete(`http://localhost:8082/Meals/${id}`);
+  };
 
-    }
+  // headers of the table
+  const headersTitle = [
+    { label: " ID", key: "id" },
+    { label: "Meal", key: "Meal" },
+    { label: "Price", key: "Price" },
+  ];
 
+  // return the body of the component
+  return (
+    <>
+      {/* table of the data */}
+      <Tables
+        data={APIdata}
+        headers={headersTitle}
+        employe={employe}
+        Title=" + Add Meal "
+        update={Update}
+        handleUpdate={handleUpdate}
+        refresh={getAllData}
+        deleteData={deleteData}
+      />
 
+      {/* add data */}
+      <MealsAddModel ref={employe} Title="Add Meal" getAllData={getAllData} />
 
-
-    //showin items in tabel
-    useEffect(() => {
-
-        getAllData()
-    }
-        , [])
-
-
-
-    // ====================update========================================================
-    function update(id) {
-        console.log('id', id)
-        Update.current.showUpdateModal()
-        APIdata.map((item) => {
-            if (id === item.id) {
-                return setupdateRestore(item)
-
-
-            }
-        })
-
-
-
-
-    }
-console.log(updateRestore)
-
-const headersTitle = [
-    { label: ' ID', key: 'id' },
-    { label: 'Meal', key: 'Meal' },
-    { label: 'Price', key: 'Price' },
-    
-];
-
-
-
-    return (
-        <>
-            <Tables data={APIdata} headers={headersTitle} employe={employe}
-                Title=" + Add Meal " 
-
-                 
-                update={ update} /> 
-
-            <MelasMoadel
-                ref={employe}
-                Title="Add Meal"
-                getAllData={getAllData}
-            />
-
-            
-
-        </>
-    );
+      {/* update data */}
+      <MealsUpdateModel
+        ref={Update}
+        mealsData={updateMeal}
+        mealsId={updateMeal.id}
+        refresh={getAllData}
+      />
+    </>
+  );
 };
 
 export default Meals;

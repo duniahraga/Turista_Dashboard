@@ -1,35 +1,21 @@
-import React, {
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useEffect,
-} from "react";
+// import dependencies
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { Offcanvas } from "react-bootstrap";
 import axios from "axios";
-import { Field, FormikProvider, useFormik } from "formik";
+import { FormikProvider, useFormik } from "formik";
 import swal from "sweetalert";
 import { ThreeDots } from "react-loader-spinner";
 import { Link } from "react-router-dom";
 
-const SettingAddModel = forwardRef((props, ref) => {
+// create the component
+const SettingsAddModel = forwardRef((props, ref) => {
   //States
   const [addEmploye, setAddEmploye] = useState(false);
-  //APi Test
   const [isloading, setisloading] = useState(false);
   const [errMsg, seterrMsg] = useState(null);
-  const handelClose = () => setAddEmploye(false);
-  const token = localStorage.getItem("token");
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedImagesTtileLaogo, setSelectedImagesTtileLaogo] = useState([]);
   const [selectedImagesFavIcon, setSelectedImagesFavIcon] = useState([]);
-
-  const [MainLogo, setMainLogo] = useState("");
-
-  useImperativeHandle(ref, () => ({
-    showEmployeModal() {
-      setAddEmploye(true);
-    },
-  }));
 
   //varibels
   let Settings = {
@@ -38,28 +24,6 @@ const SettingAddModel = forwardRef((props, ref) => {
     FavIcon: "",
     Title: "",
   };
-
-  //functions
-  async function addData(value) {
-    setisloading(true);
-
-    try {
-      const response = await axios
-        .post("http://localhost:8082/Setting", value, {
-          headers: {
-            token: localStorage.getItem("tkn"),
-          },
-        })
-        .then((res) => swal("add Successfly"));
-      formikObj.resetForm();
-      handelClose();
-      setSelectedImages([]);
-      setSelectedImagesFavIcon([]);
-      props.getAllData();
-    } catch (error) {}
-
-    setisloading(false);
-  }
 
   //validations
   const formikObj = useFormik({
@@ -79,6 +43,17 @@ const SettingAddModel = forwardRef((props, ref) => {
     },
   });
 
+  // handle close
+  const handelClose = () => setAddEmploye(false);
+
+  // show model
+  useImperativeHandle(ref, () => ({
+    showEmployeModal() {
+      setAddEmploye(true);
+    },
+  }));
+
+  // handle image change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -95,6 +70,7 @@ const SettingAddModel = forwardRef((props, ref) => {
     e.target.value = null;
   };
 
+  // remove image
   const removeImage = (index) => {
     const updatedImages = [...selectedImages];
     updatedImages.splice(index, 1);
@@ -102,6 +78,7 @@ const SettingAddModel = forwardRef((props, ref) => {
     localStorage.setItem("selectedImages", JSON.stringify(updatedImages));
   };
 
+  // handle image change title logo
   const handleImageChangeLogotitle = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -121,6 +98,7 @@ const SettingAddModel = forwardRef((props, ref) => {
     e.target.value = null;
   };
 
+  // remove image title logo
   const removeImageTitleLogo = (index) => {
     const updatedImages = [...selectedImages];
     updatedImages.splice(index, 1);
@@ -131,6 +109,7 @@ const SettingAddModel = forwardRef((props, ref) => {
     );
   };
 
+  // handle image change fav icon
   const handleImageChangeFavIcon = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -147,6 +126,7 @@ const SettingAddModel = forwardRef((props, ref) => {
     e.target.value = null;
   };
 
+  // remove image fav icon
   const removeImageFavIcon = (index) => {
     const updatedImages = [...selectedImagesFavIcon];
     updatedImages.splice(index, 1);
@@ -157,10 +137,34 @@ const SettingAddModel = forwardRef((props, ref) => {
     );
   };
 
+  //functions
+  async function addData(value) {
+    setisloading(true);
+
+    try {
+      const response = await axios
+        .post("http://localhost:8082/Setting", value, {
+          headers: {
+            token: localStorage.getItem("tkn"),
+          },
+        })
+        .then((res) => swal("add Successfly"));
+      formikObj.resetForm();
+      setSelectedImages([]);
+      setSelectedImagesFavIcon([]);
+      setSelectedImagesTtileLaogo([]);
+      props.getAllData();
+      handelClose();
+    } catch (error) {}
+
+    setisloading(false);
+  }
+
+  // return the body of the component
   return (
     <Offcanvas
       show={addEmploye}
-      onHide={setAddEmploye}
+      onHide={handelClose}
       className="offcanvas-end customeoff"
       placement="end"
     >
@@ -180,11 +184,7 @@ const SettingAddModel = forwardRef((props, ref) => {
               <h1 className="modal-title fs-5" id="exampleModalLabel1">
                 {props.Title}
               </h1>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setAddEmploye(false)}
-              >
+              <button type="button" className="btn-close" onClick={handelClose}>
                 <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
@@ -243,9 +243,9 @@ const SettingAddModel = forwardRef((props, ref) => {
                                 alt={`Selected ${index + 1}`}
                                 style={{ maxWidth: "350px" }}
                               />
-                              <a onClick={() => removeImage(index)}>
+                              <button onClick={() => removeImage(index)}>
                                 <i className="fa-solid fa-trash ps-1"></i>
-                              </a>
+                              </button>
                             </div>
                           ))}
                         </div>
@@ -277,9 +277,11 @@ const SettingAddModel = forwardRef((props, ref) => {
                                 alt={`Selected ${index + 1}`}
                                 style={{ maxWidth: "350px" }}
                               />
-                              <a onClick={() => removeImageTitleLogo(index)}>
+                              <button
+                                onClick={() => removeImageTitleLogo(index)}
+                              >
                                 <i className="fa-solid fa-trash ps-1"></i>
-                              </a>
+                              </button>
                             </div>
                           ))}
                         </div>
@@ -311,9 +313,9 @@ const SettingAddModel = forwardRef((props, ref) => {
                                 alt={`Selected ${index + 1}`}
                                 style={{ maxWidth: "350px" }}
                               />
-                              <a onClick={() => removeImageFavIcon(index)}>
+                              <button onClick={() => removeImageFavIcon(index)}>
                                 <i className="fa-solid fa-trash ps-1"></i>
-                              </a>
+                              </button>
                             </div>
                           ))}
                         </div>
@@ -352,4 +354,4 @@ const SettingAddModel = forwardRef((props, ref) => {
   );
 });
 
-export default SettingAddModel;
+export default SettingsAddModel;

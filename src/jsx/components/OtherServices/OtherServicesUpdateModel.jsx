@@ -11,74 +11,86 @@ import swal from "sweetalert";
 import { ThreeDots } from "react-loader-spinner";
 import { Link } from "react-router-dom";
 
-const GuestsAddModel = forwardRef((props, ref) => {
-  //States
+const OtherServicesUpdateModel = forwardRef((props, ref) => {
+  // States
   const [addEmploye, setAddEmploye] = useState(false);
-  //APi Test
   const [isloading, setisloading] = useState(false);
   const [errMsg, seterrMsg] = useState(null);
 
-  //varibels
-  let Guests = {
-    Guests: "",
+  // Variables
+  let OtherServices = {
+    Services: "",
     Price: "",
   };
 
   //validations
   const formikObj = useFormik({
-    initialValues: Guests,
-    onSubmit: addData,
+    initialValues: OtherServices,
+    onSubmit: updateData,
     validate: function (value) {
       seterrMsg(null);
-
       const errors = {};
-
-      if (value.Guests.length < 3 || value.Guests.length > 66) {
-        errors.Guests = "The Guests  must be not less than 3 leters long  ";
+      if (value.Services.length < 3 || value.Services.length > 66) {
+        errors.Services = "The Services  must be not less than 3 leters long  ";
       }
       if (value.Price.length < 3 || value.Price.length > 66) {
         errors.Price = "The Price  must be not less than 1 Number  long  ";
       }
 
-      console.log(errors);
       return errors;
     },
   });
 
-  // handle close the component
-  const handelClose = () => setAddEmploye(false);
+  useEffect(() => {
+    formikObj.setValues({
+      id: props.serviceData.id || "",
+      Services: props.serviceData.Services || "",
+      Price: props.serviceData.Price || "",
+    });
+  }, [props.serviceData]);
 
-  // Function to show the modal
+  // show modal
   useImperativeHandle(ref, () => ({
-    showEmployeModal() {
+    showUpdateModal() {
       setAddEmploye(true);
     },
   }));
+  
 
-    //functions
-	async function addData(value) {
-		setisloading(true);
-	
-		try {
-		  const response = await axios
-			.post("http://localhost:8082/Guests", value, {
-			  headers: {
-				token: localStorage.getItem("tkn"),
-			  },
-			})
-			.then((res) => swal("add Successfly"));
-		  formikObj.resetForm();
-		  handelClose();
-		  props.getAllData();
-		} catch (error) {}
-	
-		setisloading(false);
-	  }
+  // close the modal
+  const handelClose = () => setAddEmploye(false);
 
+
+  //functions
+  async function updateData(value) {
+    setisloading(true);
+
+    try {
+      await axios.put(
+        `http://localhost:8082/OtherServices/${props.serviceId}`,
+        value,
+        {
+          headers: {
+            token: localStorage.getItem("tkn"),
+          },
+        }
+      );
+      swal("Updated Successfully");
+      handelClose(); // Close the modal after successful update
+      props.refresh();
+    } catch (error) {
+      console.error("Error updating data:", error);
+      seterrMsg("Failed to update the service. Please try again."); // Set error message
+    } finally {
+      setisloading(false); // Ensure loading state is reset
+    }
+  }
+
+  // Return the body of the component
   return (
     <Offcanvas
       show={addEmploye}
-      onHide={setAddEmploye}
+      onHide={handelClose}
       className="offcanvas-end customeoff"
       placement="end"
     >
@@ -98,11 +110,7 @@ const GuestsAddModel = forwardRef((props, ref) => {
               <h1 className="modal-title fs-5" id="exampleModalLabel1">
                 {props.Title}
               </h1>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setAddEmploye(false)}
-              >
+              <button type="button" className="btn-close" onClick={handelClose}>
                 <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
@@ -116,20 +124,21 @@ const GuestsAddModel = forwardRef((props, ref) => {
                 <div className="row">
                   <div className="col-lg-6 mb-2">
                     <div className="form-group mb-3">
-                      <label className="text-label">Guests*</label>
+                      <label className="text-label">Services*</label>
                       <input
                         type="text"
                         multiple
-                        name="Guests"
+                        name="Services"
                         className="form-control"
-                        placeholder="Guests"
+                        placeholder="Services"
                         onBlur={formikObj.handleBlur}
                         onChange={formikObj.handleChange}
-                        value={formikObj.values.Guests}
+                        value={formikObj.values.Services}
                       />
-                      {formikObj.errors.Guests && formikObj.touched.Guests ? (
+                      {formikObj.errors.Services &&
+                      formikObj.touched.Services ? (
                         <div className=" alert alert-danger">
-                          {formikObj.errors.Guests}
+                          {formikObj.errors.Services}
                         </div>
                       ) : (
                         ""
@@ -174,12 +183,12 @@ const GuestsAddModel = forwardRef((props, ref) => {
                         ariaLabel="falling-lines-loading"
                       />
                     ) : (
-                      "Submit"
+                      "Update"
                     )}
                   </button>
                   <Link
-                    to={"#"}
-                    onClick={() => setAddEmploye(false)}
+                    to="#"
+                    onClick={handelClose}
                     className="btn btn-danger light ms-1"
                   >
                     Cancel
@@ -194,4 +203,4 @@ const GuestsAddModel = forwardRef((props, ref) => {
   );
 });
 
-export default GuestsAddModel;
+export default OtherServicesUpdateModel;

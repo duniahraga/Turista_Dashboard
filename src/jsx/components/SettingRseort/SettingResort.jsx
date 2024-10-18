@@ -2,13 +2,14 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import Tables from "../Tables/Tables";
 import axios from "axios";
 
-import GuestsAddModel from "./GuestsAddModel";
-import GuestsUpdateModel from "./GuestsUpdateModel";
-const Guests = () => {
+// import component
+import SettingResortAddModel from "./SettingResortAddModel";
+import SettingResortUpdateModel from "./SettingResortUpdateModel";
+
+const SettingResort = () => {
   // states
   const [APIdata, setAPIdata] = useState([]);
-  const [updateGuests, setupdateGuests] = useState([]);
-
+  const [updateResort, setUpdateResort] = useState([]);
   // refs
   const employe = useRef();
   const Update = useRef();
@@ -16,7 +17,7 @@ const Guests = () => {
   // get all data
   function getAllData() {
     axios
-      .get(`http://localhost:8082/Guests`)
+      .get(`http://localhost:8082/ResortSettong`)
       .then((res) => {
         setAPIdata(res.data);
       })
@@ -33,7 +34,7 @@ const Guests = () => {
     (id) => {
       const item = APIdata.find((item) => id === item.id);
       if (item) {
-        setupdateGuests(item);
+        setUpdateResort(item);
         Update.current.showUpdateModal();
       }
     },
@@ -42,47 +43,47 @@ const Guests = () => {
 
   // delete data
   const deleteData = async (id) => {
-    await axios.delete(`http://localhost:8082/Guests/${id}`);
+    await axios.delete(`http://localhost:8082/ResortSettong/${id}`);
   };
 
   // headers of the table
   const headersTitle = [
     { label: " ID", key: "id" },
-    { label: "Guests", key: "Guests" },
-    { label: "Price", key: "Price" },
+    { label: "facilaty", key: "facility" },
+    { label: "amenty", key: "amenity" },
   ];
 
-  // custom cell renderer
+  // return the body of the component
   return (
     <>
-      {/* table */}
+      {/* table of the data  */}
       <Tables
         data={APIdata}
         headers={headersTitle}
         employe={employe}
-        Title="+ Add Guests "
+        Title=" + Add Setting "
         update={Update}
         handleUpdate={handleUpdate}
         refresh={getAllData}
         deleteData={deleteData}
       />
-
-      {/* add data */}
-      <GuestsAddModel
+      <SettingResortAddModel
         ref={employe}
-        Title="Add Guests"
+        Title="Add Resort"
         getAllData={getAllData}
       />
 
       {/* update data */}
-      <GuestsUpdateModel
-        ref={Update}
-        guestsData={updateGuests}
-        guestsId={updateGuests.id}
-        refresh={getAllData}
-      />
+      {updateResort && (
+        <SettingResortUpdateModel
+          ref={Update}
+          resortData={updateResort}
+          resortId={updateResort.id}
+          refresh={getAllData}
+        />
+      )}
     </>
   );
 };
 
-export default Guests;
+export default SettingResort;

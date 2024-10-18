@@ -1,7 +1,7 @@
-import React, { useContext  } from "react";
+import React, { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 /// React router dom
-import {  Routes, Route, Outlet  } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 
 /// Css
 import "./index.css";
@@ -13,7 +13,6 @@ import Nav from "./layouts/nav";
 import Footer from "./layouts/Footer";
 import ScrollToTop from "./layouts/ScrollToTop";
 
-
 /// Dashboard
 import Home from "./components/Dashboard/Home";
 import Dashboard2 from "./components/Dashboard/Dashboard2";
@@ -21,19 +20,15 @@ import Dashboard3 from "./components/Dashboard/Dashboard3";
 import Dashboard4 from "./components/Dashboard/Dashboard4";
 import Crm from "./components/Dashboard/Crm";
 import Analytics from "./components/Dashboard/Analytics";
-import Products from "./components/Dashboard/Products"; 
-import Sales from "./components/Dashboard/Sales"; 
+import Products from "./components/Dashboard/Products";
+import Sales from "./components/Dashboard/Sales";
 import Projects from "./components/Dashboard/Projects";
-
 
 //Apps
 import AppProfile from "./components/AppsMenu/AppProfile/AppProfile";
 import AppProfile2 from "./components/AppsMenu/AppProfile/AppProfile2";
 
-
 import Calendar from "./components/BookingCalnder/Calendar";
-
-
 
 /// Charts
 import SparklineChart from "./components/charts/Sparkline";
@@ -87,69 +82,66 @@ import Settings from "./components/Settings/Settings";
 import OtherServices from "./components/OtherServices/OtherServices";
 import Meals from "./components/Meals/Meals";
 import Guests from "./components/Guests/Guests";
-import SettingRseort from "./components/SettingRseort/SettingRseort";
+import SettingResort from "./components/SettingRseort/SettingResort";
 import MoniterTraffic from "./components/MoniterTraffic/MoniterTraffic";
 import Invoices from "./components/Invoices/Invoices";
 import Users from "./components/Users/Users";
 
 const allroutes = [
   // Dashboard
-    { url: "", component: <Home /> },
-    { url: "dashboard", component: <Home /> },
-    { url: "index-3", component: <Dashboard2 /> },
-    { url: "index-4", component: <Dashboard3 /> },
-    { url: "index-5", component: <Dashboard4 /> },
-    { url: "crm", component: <Crm /> },
-    { url: "analytics", component: <Analytics /> },
-    { url: "products", component: <Products /> },
-    { url: "sales", component: <Sales /> },
-    { url: "project", component: <Projects /> },  
-    
-  //Apps
-   
-       
-    { url: "app-profile", component: <AppProfile /> },
-    { url: "app-profile-2", component: <AppProfile2 /> },
-          
-  // Apps  
-    
-    { url: "app-calender", component: <Calendar /> },
+  { url: "", component: <Home /> },
+  { url: "dashboard", component: <Home /> },
+  { url: "index-3", component: <Dashboard2 /> },
+  { url: "index-4", component: <Dashboard3 /> },
+  { url: "index-5", component: <Dashboard4 /> },
+  { url: "crm", component: <Crm /> },
+  { url: "analytics", component: <Analytics /> },
+  { url: "products", component: <Products /> },
+  { url: "sales", component: <Sales /> },
+  { url: "project", component: <Projects /> },
 
-  
+  //Apps
+
+  { url: "app-profile", component: <AppProfile /> },
+  { url: "app-profile-2", component: <AppProfile2 /> },
+
+  // Apps
+
+  { url: "app-calender", component: <Calendar /> },
+
   // Chart
-    { url: "chart-sparkline", component: <SparklineChart /> },
-    { url: "chart-chartjs", component: <ChartJs /> },    
-    { url: "chart-apexchart", component: <ApexChart /> },
-    { url: "chart-rechart", component: <RechartJs /> },
+  { url: "chart-sparkline", component: <SparklineChart /> },
+  { url: "chart-chartjs", component: <ChartJs /> },
+  { url: "chart-apexchart", component: <ApexChart /> },
+  { url: "chart-rechart", component: <RechartJs /> },
   // Bootstrap
-    { url: "ui-accordion", component: <UiAccordion /> },
-    { url: "ui-alert", component: <UiAlert /> },
-    { url: "ui-badge", component: <UiBadge /> },
-    { url: "ui-button", component: <UiButton /> },
-    { url: "ui-modal", component: <UiModal /> },
-    { url: "ui-button-group", component: <UiButtonGroup /> },
-    { url: "ui-list-group", component: <UiListGroup /> },
-    { url: "ui-card", component: <UiCards />},
-    { url: "ui-carousel", component: <UiCarousel /> },
-    { url: "ui-dropdown", component: <UiDropDown /> },
-    { url: "ui-popover", component: <UiPopOver /> },
-    { url: "ui-progressbar", component: <UiProgressBar /> },
-    { url: "ui-tab", component: <UiTab /> },
-    { url: "ui-pagination", component: <UiPagination /> },
-    { url: "ui-typography", component: <UiTypography /> },
-    { url: "ui-grid", component: <UiGrid /> },  
+  { url: "ui-accordion", component: <UiAccordion /> },
+  { url: "ui-alert", component: <UiAlert /> },
+  { url: "ui-badge", component: <UiBadge /> },
+  { url: "ui-button", component: <UiButton /> },
+  { url: "ui-modal", component: <UiModal /> },
+  { url: "ui-button-group", component: <UiButtonGroup /> },
+  { url: "ui-list-group", component: <UiListGroup /> },
+  { url: "ui-card", component: <UiCards /> },
+  { url: "ui-carousel", component: <UiCarousel /> },
+  { url: "ui-dropdown", component: <UiDropDown /> },
+  { url: "ui-popover", component: <UiPopOver /> },
+  { url: "ui-progressbar", component: <UiProgressBar /> },
+  { url: "ui-tab", component: <UiTab /> },
+  { url: "ui-pagination", component: <UiPagination /> },
+  { url: "ui-typography", component: <UiTypography /> },
+  { url: "ui-grid", component: <UiGrid /> },
   // Plugin
-    { url: "uc-select2", component: <Select2 /> },
-    { url: "uc-sweetalert", component: <MainSweetAlert /> },
-    { url: "uc-toastr", component: <Toastr /> },   
-    { url: "uc-lightgallery", component: <Lightgallery /> },
-  
-  
+  { url: "uc-select2", component: <Select2 /> },
+  { url: "uc-sweetalert", component: <MainSweetAlert /> },
+  { url: "uc-toastr", component: <Toastr /> },
+  { url: "uc-lightgallery", component: <Lightgallery /> },
+
   // table
-    { url: 'table-filtering', component: <FilteringTable /> },
-    { url: 'table-sorting', component: <SortingTable /> },
+  { url: "table-filtering", component: <FilteringTable /> },
+  { url: "table-sorting", component: <SortingTable /> },
   { url: "table-bootstrap-basic", component: <BootstrapTable /> },
-    
+
   //The Turista
 
   { url: "Resort", component: <Resort /> },
@@ -159,84 +151,77 @@ const allroutes = [
   { url: "OtherServices", component: <OtherServices /> },
   { url: "Meals", component: <Meals /> },
   { url: "Guests", component: <Guests /> },
-  { url: "SettingRseort", component: <SettingRseort /> },
+  { url: "SettingResort", component: <SettingResort /> },
   { url: "MoniterTraffic", component: <MoniterTraffic /> },
   { url: "Invoices", component: <Invoices /> },
 
   { url: "Users", component: <Users /> },
   { url: "Invoices", component: <Invoices /> },
-
-
-
-
-
-    
 ];
 
- 
-  function NotFound(){    
-    const url = allroutes.map((route) => route.url);
-    let path = window.location.pathname
-    path = path.split('/')
-    path = path[path.length - 1]    
-      
-    if(url.indexOf(path) <= 0){     
-      return <Error404 />
-    }
+function NotFound() {
+  const url = allroutes.map((route) => route.url);
+  let path = window.location.pathname;
+  path = path.split("/");
+  path = path[path.length - 1];
+
+  if (url.indexOf(path) <= 0) {
+    return <Error404 />;
   }
+}
 
-
-
-const Markup = () => {   
-  
-   
-    return (
-      <>
-          <Routes>              
-              <Route path='/page-lock-screen' element= {<LockScreen />} />
-              <Route path='/page-error-400' element={<Error400/>} />            
-              <Route path='/page-error-403' element={<Error403/>} />
-              <Route path='/page-error-404' element={<Error404/>} />
-              <Route path='/page-error-500' element={<Error500/>} />
-              <Route path='/page-error-503' element={<Error503/>} />     
-              <Route  element={<MainLayout />} > 
-                  {allroutes.map((data, i) => (
-                    <Route
-                      key={i}
-                      exact
-                      path={`${data.url}`}
-                      element={data.component}
-                    />
-                    ))}
-              </Route>                
-              <Route path='*' element={<NotFound/>} />     
-          </Routes>     
-          <ScrollToTop />
-          
-      </>
-    );       
+const Markup = () => {
+  return (
+    <>
+      <Routes>
+        <Route path="/page-lock-screen" element={<LockScreen />} />
+        <Route path="/page-error-400" element={<Error400 />} />
+        <Route path="/page-error-403" element={<Error403 />} />
+        <Route path="/page-error-404" element={<Error404 />} />
+        <Route path="/page-error-500" element={<Error500 />} />
+        <Route path="/page-error-503" element={<Error503 />} />
+        <Route element={<MainLayout />}>
+          {allroutes.map((data, i) => (
+            <Route
+              key={i}
+              exact
+              path={`${data.url}`}
+              element={data.component}
+            />
+          ))}
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <ScrollToTop />
+    </>
+  );
 };
 
+function MainLayout() {
+  const { menuToggle, sidebariconHover } = useContext(ThemeContext);
 
-  function MainLayout(){
-    const { menuToggle , sidebariconHover} = useContext(ThemeContext);
-
-    const dispatch = useDispatch();
-    const sideMenu = useSelector(state => state.sideMenu);
-    // const handleToogle = () => {
-    //   dispatch(navtoggle());
-    // };
-    return (
-      <div id="main-wrapper" className={`show ${sidebariconHover ? "iconhover-toggle": ""} ${ sideMenu ? "menu-toggle" : ""}`}>  
-          <Nav />
-          <div className="content-body" style={{ minHeight: window.screen.height - 45 }}>          
-            <Outlet />   
-          </div>
-        <Footer />
+  const dispatch = useDispatch();
+  const sideMenu = useSelector((state) => state.sideMenu);
+  // const handleToogle = () => {
+  //   dispatch(navtoggle());
+  // };
+  return (
+    <div
+      id="main-wrapper"
+      className={`show ${sidebariconHover ? "iconhover-toggle" : ""} ${
+        sideMenu ? "menu-toggle" : ""
+      }`}
+    >
+      <Nav />
+      <div
+        className="content-body"
+        style={{ minHeight: window.screen.height - 45 }}
+      >
+        <Outlet />
       </div>
-    )
-  };
-
-
+      <Footer />
+    </div>
+  );
+}
 
 export default Markup;

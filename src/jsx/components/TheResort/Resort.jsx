@@ -76,8 +76,6 @@ const Resort = () => {
       <Tables
         data={APIdata}
         headers={headersTitle}
-        employe={resort}
-        customCellRenderer={customCellRenderer}
         Title=" + Add Restore "
         update={Update}
         handleUpdate={handleUpdate}
