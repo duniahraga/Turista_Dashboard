@@ -1,67 +1,101 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { IMAGES } from '../../constant/theme';
-import Tables from '../Tables/Tables';
-import { Link } from 'react-router-dom';
-
-
-const tableData = [
-    { id: '1001', image: IMAGES.contact1, Location: '+12 123 456 7890', ResortName: 'Ricky Antony', UniqueID: 'ra@gmail.com', Latitude: 'Female', Longitude: 'India',TypeID: 'Withdraw'  },
-    { id: '1002', image: IMAGES.contact2, Location: '+12 123 456 7890', ResortName: 'Ankites Risher', UniqueID: 'abc@gmail.com', Latitude: 'Male', Longitude: 'Brazil',TypeID: 'Deposit'  },
-    { id: '1003', image: IMAGES.contact3, Location: '+12 123 456 7890', ResortName: 'Ricky M', UniqueID: 'pqr@gmail.com', Latitude: 'Male', Longitude: 'France',TypeID: 'Withdraw'  },
-    { id: '1004', image: IMAGES.contact1, Location: '+12 123 456 7890', ResortName: 'Elijah James', UniqueID: 'stuy@gmail.com', Latitude: 'Female', Longitude: 'Dubai', TypeID: 'Deposit' },
-    { id: '1005', image: IMAGES.contact2, Location: '+12 123 456 7890', ResortName: 'Honey Risher', UniqueID: 'xyz@gmail.com', Latitude: 'Male', Longitude: 'USA',TypeID: 'Withdraw'  },
-    { id: '1006', image: IMAGES.contact2, Location: '+12 123 456 7890', ResortName: 'Honey Risher', UniqueID: 'xyz@gmail.com', Latitude: 'Male', Longitude: 'USA',TypeID: 'Deposit'  },
-    { id: '1007', image: IMAGES.contact2, Location: '+12 123 456 7890', ResortName: 'Ankites Risher', UniqueID: 'abc@gmail.com', Latitude: 'Male', Longitude: 'Brazil',TypeID: 'Withdraw'  },
-    { id: '1008', image: IMAGES.contact3, Location: '+12 123 456 7890', ResortName: 'Ricky M', UniqueID: 'pqr@gmail.com', Latitude: 'Male', Longitude: 'France',TypeID: 'Deposit'  },
-    { id: '1009', image: IMAGES.contact1, Location: '+12 123 456 7890', ResortName: 'Ricky Antony', UniqueID: 'ra@gmail.com', Latitude: 'Female', Longitude: 'India',TypeID: 'Withdraw'  },
-    { id: '1010', image: IMAGES.contact1, Location: '+12 123 456 7890', ResortName: 'Elijah James', UniqueID: 'stuy@gmail.com', Latitude: 'Female', Longitude: 'Dubai',TypeID: 'Deposit'  },
-    { id: '1011', image: IMAGES.contact2, Location: '+12 123 456 7890', ResortName: 'Ankites Risher', UniqueID: 'abc@gmail.com', Latitude: 'Male', Longitude: 'Brazil',TypeID: 'Withdraw'  },
-    { id: '1012', image: IMAGES.contact1, Location: '+12 123 456 7890', ResortName: 'Ricky Antony', UniqueID: 'ra@gmail.com', Latitude: 'Female', Longitude: 'India',TypeID: 'Deposit'  },
-    { id: '1013', image: IMAGES.contact1, Location: '+12 123 456 7890', ResortName: 'Elijah James', UniqueID: 'stuy@gmail.com', Latitude: 'Female', Longitude: 'Dubai',TypeID: 'Withdraw'  },
-    { id: '1015', image: IMAGES.contact2, Location: '+12 123 456 7890', ResortName: 'Honey Risher', UniqueID: 'xyz@gmail.com', Latitude: 'Male', Longitude: 'USA', TypeID: 'Deposit' },
-    { id: '1016', image: IMAGES.contact3, Location: '+12 123 456 7890', ResortName: 'Ricky M', UniqueID: 'pqr@gmail.com', Latitude: 'Male', Longitude: 'France', TypeID: 'Withdraw' },
-    { id: '1017', image: IMAGES.contact1, Location: '+12 123 456 7890', ResortName: 'Ricky Antony', UniqueID: 'ra@gmail.com', Latitude: 'Female', Longitude: 'India',TypeID: 'Deposit'  },
-    { id: '1018', image: IMAGES.contact1, Location: '+12 123 456 7890', ResortName: 'Elijah James', UniqueID: 'stuy@gmail.com', Latitude: 'Female', Longitude: 'Dubai',TypeID: 'Withdraw'  },
-];
-
-const headersTitle = [
-    { label: ' ID', key: 'id' },
-    { label: 'Booking ID', key: 'BookingID' },
-    { label: 'Type ID', key: 'TypeID' },
-    { label: 'the financial value', key: 'financialvalue' },
-    { label: 'Created On', key: 'CreatedOn' },
-    { label: 'User Name', key: 'UserName' },
-    { label: 'Phone Number', key: 'PhoneNumber' },
-    { label: 'Property Owner Account', key: 'PropertyOwnerAccount' },
-    { label: 'Payment', key: 'Payment' },
-    {label: 'note', key: 'note'},
-]
-
-const customCellRenderer = {
-    TypeID: (row) => (
-        <span >
-            
-            {row.TypeID === 'Withdraw' ? (
-                <Link  className=' badge badge-danger ' to={`/Chalets/${row.id}`}>{row.TypeID}</Link>
-            ) :  (
-                <Link className='badge badge-success ps-4 pe-3' to={`/inactive/${row.id}`}>{row.TypeID}</Link>
-            )}
-        </span>
-    )
-};
-
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { IMAGES } from "../../constant/theme";
+import Tables from "../Tables/Tables";
+import { Link } from "react-router-dom";
 
 export default function MoniterTraffic() {
+  const [tableData, setTableData] = useState([]); // State to hold table data
+  const [startDate, setStartDate] = useState(""); // State for start date
+  const [endDate, setEndDate] = useState(""); // State for end date
+  const [filteredData, setFilteredData] = useState([]); // State to hold filtered data
+  const invite = useRef();
 
-    const invite = useRef();
+  useEffect(() => {
+    // Fetch data from the API
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:8082/Booking");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
 
-    return (
-        <>
-            <Tables data={tableData} headers={headersTitle}  customCellRenderer={ customCellRenderer} />
+        // Map the data to the desired format
+        const formattedData = data.map((item) => ({
+          id: item.id,
+          firstName: item.firstName,
+          LastName: item.LastName,
+          phoneNumber: item.phoneNumber,
+          ChaletName: item.ChaletName,
+          EntryDate: item.EntryDate,
+          ExitDate: item.ExitDate,
+        }));
 
-           
+        setTableData(formattedData); // Set the formatted data to state
+        setFilteredData(formattedData); // Initially set filtered data to all data
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-        </>
-    );
-};
+    fetchData(); // Call the fetch function
+  }, []); // Empty dependency array means this runs once on mount
 
+  // Filter the table data based on the date range
+  const filterData = useCallback(() => {
+    if (!startDate && !endDate) {
+      return tableData; // Return all data if no dates are set
+    }
+
+    return tableData.filter((item) => {
+      const entryDate = new Date(item.EntryDate);
+      const exitDate = new Date(item.ExitDate);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+
+      if (start && end) {
+        return entryDate >= start && exitDate <= end;
+      } else if (start) {
+        return entryDate >= start;
+      } else if (end) {
+        return exitDate <= end;
+      }
+      return true;
+    });
+  }, [tableData, startDate, endDate]);
+
+  useEffect(() => {
+    setFilteredData(filterData());
+  }, [filterData]);
+
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+  };
+
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+  };
+
+  const headersTitle = [
+    { label: "ID", key: "id" },
+    { label: "First Name", key: "firstName" },
+    { label: "Last Name", key: "LastName" },
+    { label: "Phone Number", key: "phoneNumber" },
+    { label: "Chalet Name", key: "ChaletName" },
+    { label: "Entry Date", key: "EntryDate" },
+    { label: "Exit Date", key: "ExitDate" },
+  ];
+
+  return (
+    <>
+      <Tables
+        data={filteredData}
+        headers={headersTitle}
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={handleStartDateChange}
+        onEndDateChange={handleEndDateChange}
+      />
+    </>
+  );
+}
