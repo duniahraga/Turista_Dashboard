@@ -48,16 +48,14 @@ const Booking = () => {
 
   // headers of the table
   const headersTitle = [
-    { label: " ID", key: "id" },
-    { label: "Chalet Number", key: "ResortName" },
-    { label: "Date of entry", key: "UniqueID" },
-    { label: "Exit date", key: "Location" },
-    { label: "UserName", key: "Latitude" },
-    { label: "Phone Numebr", key: "Longitude" },
-    { label: "Total", key: "" },
-    { label: "deposit", key: "" },
-    { label: "Booking Statues", key: "" },
-    { label: "payment method", key: "status" },
+    { label: "ID", key: "id" },
+    { label: "First Name", key: "firstName" },
+    { label: "Last Name", key: "LastName" },
+    { label: "Phone Number", key: "phoneNumber" },
+    { label: "Whatsapp Number", key: "whatsappNumber" },
+    { label: "Residential Address", key: "Residentialِddress" },
+    { label: "Entry Date", key: "EntryDate" },
+    { label: "Exit Date", key: "ExitDate" },
   ];
 
   // custom cell renderer
