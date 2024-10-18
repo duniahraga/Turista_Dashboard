@@ -1,3 +1,4 @@
+// import dependencies
 import React, {
   useState,
   forwardRef,
@@ -14,12 +15,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
-
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// import "@demark-pro/react-booking-calendar/dist/react-booking-calendar.css";
 import Multiselect from "multiselect-react-dropdown";
-// import OtherServices from '../OtherServices/OtherServices';
+
 const parseDate = (dateString) => {
   try {
     const timestamp = Date.parse(dateString);
@@ -44,7 +42,7 @@ const parseDate = (dateString) => {
   }
 };
 
-const BookingAddModal = forwardRef((props, ref) => {
+const BookingAddModel = forwardRef((props, ref) => {
   //States
   const [addEmploye, setAddEmploye] = useState(false);
   const [dateRange, setDateRange] = useState({
@@ -52,36 +50,25 @@ const BookingAddModal = forwardRef((props, ref) => {
     endDate: new Date(),
     key: "selection",
   });
+  const [isloading, setisloading] = useState(false);
+  const [errMsg, seterrMsg] = useState(null);
+  const [ChaletsAPIdata, setChaletsAPIdata] = useState([]);
+  const [OtherServicesAPIdata, setOtherServicesAPIdata] = useState([]);
+  const [Meals, setMeals] = useState([]);
+  const [bookedDates, setBookedDates] = useState([]);
+  const [reservationDates, setReservationDates] = useState([]);
+  const [guestType, setGuestType] = useState("");
+  const [Typeofaccommodation, setTypeofaccommodation] = useState("");
+  const [paymentMethod, setpaymentMethod] = useState("");
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPriceMeals, setTotalPriceMeals] = useState(0);
+
+  // select date function
   const handleSelect = (ranges) => {
     setDateRange(ranges.selection);
   };
 
-  //APi Test
-  const [isloading, setisloading] = useState(false);
-  const [errMsg, seterrMsg] = useState(null);
-  const handelClose = () => setAddEmploye(false);
-  const [ChaletsAPIdata, setChaletsAPIdata] = useState([]);
-  const [OtherServicesAPIdata, setOtherServicesAPIdata] = useState([]);
-  const [Meals, setMeals] = useState([]);
-  const [APIDATA, setAPIDATA] = useState([]);
-  // const [bookedDates, setBookedDates] = useState([]);
-  const [entryDate, setEntryDate] = useState("");
-  const [exitDate, setExitDate] = useState("");
-
-  // const bookedDates = ['2024-09-28', '2024-09-29', '2024-09-30'];
-  const [bookedDates, setBookedDates] = useState([]);
-  const [reservationDates, setReservationDates] = useState([]);
-
-  const apiDates = props.ApiDAte;
-
-  useImperativeHandle(ref, () => ({
-    showEmployeModal() {
-      setAddEmploye(true);
-    },
-  }));
-
-  //varibels
-  let [Booking, setBooking] = useState({
+  let Booking = {
     firstName: "",
     LastName: "",
     phoneNumber: "",
@@ -107,70 +94,28 @@ const BookingAddModal = forwardRef((props, ref) => {
     Paymentofuarantee: "",
     uarantee: "",
     sameAsPhoneNumber: false,
-  });
-
-  //functions
-  // formate date to exept in json file
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
   };
 
-  async function addData(value) {
-    setisloading(true);
-
-    try {
-      const formattedEntryDate = formatDate(dateRange.startDate);
-      const formattedExitDate = formatDate(dateRange.endDate);
-
-      const response = await axios.post(
-        "http://localhost:8082/Booking",
-        {
-          ...value,
-          EntryDate: formattedEntryDate,
-          ExitDate: formattedExitDate,
-        },
-        {
-          headers: {
-            token: localStorage.getItem("tkn"),
-          },
-        }
-      );
-
-      swal("تمت الإضافة بنجاح");
-
-      formikObj.resetForm();
-
-      handelClose();
-
-      props.getAllData();
-
-      formikObj.setFieldValue("EntryDate", null);
-      formikObj.setFieldValue("ExitDate", null);
-      setEntryDate(formikObj.EntryDate || "");
-      setExitDate(formikObj.ExitDate || "");
-    } catch (error) {
-      console.error("حدث خطأ:", error);
-    }
-
-    setisloading(false);
-  }
   //validations
   const formikObj = useFormik({
     initialValues: Booking,
     onSubmit: addData,
     validate: function (value) {
       seterrMsg(null);
-
       const errors = {};
-
-      if (value.firstName.length < 3 || value.firstName.length > 35) {
+      if (
+        !value.firstName ||
+        value.firstName.length < 3 ||
+        value.firstName.length > 35
+      ) {
         errors.firstName = "The first Name  must be at least 3 letters long";
       }
 
-      if (value.LastName.length < 3 || value.LastName.length > 35) {
+      if (
+        !value.LastName ||
+        value.LastName.length < 3 ||
+        value.LastName.length > 35
+      ) {
         errors.LastName = "The last Name  must be at least 3 letters long";
       }
 
@@ -181,7 +126,7 @@ const BookingAddModal = forwardRef((props, ref) => {
         errors.whatsappNumber = " Invalid whatsapp number";
       }
 
-      if (value.Numberofguests.length <= 7) {
+      if (!value.Numberofguests || value.Numberofguests.length <= 7) {
         errors.Numberofguests =
           " The Number of guests should not exceed 7 people. ";
       }
@@ -190,11 +135,29 @@ const BookingAddModal = forwardRef((props, ref) => {
           "The Number of adults and  Number of children should not exceed 7 people  ";
       }
 
-      console.log(errors);
       return errors;
     },
   });
 
+  // formate date to exept in json file
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // show modal function
+  useImperativeHandle(ref, () => ({
+    showEmployeModal() {
+      setAddEmploye(true);
+    },
+  }));
+
+  // close the component on hide
+  const handleClose = () => setAddEmploye(false);
+
+  // handle checkbox
   const handleCheckboxChange = (e) => {
     formikObj.setFieldValue("sameAsPhoneNumber", e.target.checked);
 
@@ -205,57 +168,15 @@ const BookingAddModal = forwardRef((props, ref) => {
     }
   };
 
-  //============================Display all Chalets=====================================
-
-  const getChaletsData = async () => {
-    try {
-      const response = await axios.get("http://localhost:8082/Chalets");
-      setChaletsAPIdata(response.data); // Store the fetched data in the state
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  //============================Display all OtherServices=====================================
-
-  const getOtherServicesData = async () => {
-    try {
-      const response = await axios.get("http://localhost:8082/OtherServices");
-      setOtherServicesAPIdata(response.data); // Store the fetched data in the state
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  //============================Display all Meals=====================================
-
-  const getMeals = async () => {
-    try {
-      const response = await axios.get("http://localhost:8082/Meals");
-      setMeals(response.data); // Store the fetched data in the state
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+  // fetch data on enter
   useEffect(() => {
     getChaletsData();
     getOtherServicesData();
     getMeals();
     getDates();
 
-    const storedEntryDate = localStorage.getItem("EntryDate");
-    const storedExitDate = localStorage.getItem("ExitDate");
-
-    if (storedEntryDate) {
-      formikObj.setFieldValue("EntryDate", new Date(storedEntryDate));
-    }
-
-    if (storedExitDate) {
-      formikObj.setFieldValue("ExitDate", new Date(storedExitDate));
-    }
-
-    if (props.ApiDAte) {
-      const apiDates = props.ApiDAte;
+    if (props.ApiDate) {
+      const apiDates = props.ApiDate;
       const formattedDates = apiDates.map((dateObj) => {
         if (dateObj && dateObj.EntryDate) {
           return parseDate(dateObj.EntryDate);
@@ -267,38 +188,10 @@ const BookingAddModal = forwardRef((props, ref) => {
         setBookedDates(formattedDates);
       }
     }
-    if (props.ApiDAte) {
-      const apiDates = props.ApiDAte;
-      const formattedDates = apiDates.map((dateObj) => {
-        if (dateObj && dateObj.EntryDate) {
-          return parseDate(dateObj.EntryDate);
-        }
-        return "Invalid Date";
-      });
-
-      if (JSON.stringify(formattedDates) !== JSON.stringify(bookedDates)) {
-        setBookedDates(formattedDates);
-      }
-    }
-  }, [props.ApiDAte, bookedDates]);
-  console.log(bookedDates);
-  const handleEntryDateChange = (date) => {
-    formikObj.setFieldValue("EntryDate", date);
-    localStorage.setItem("EntryDate", date);
-  };
-
-  const handleExitDateChange = (date) => {
-    formikObj.setFieldValue("ExitDate", date);
-    localStorage.setItem("ExitDate", date);
-  };
-
-  const [guestType, setGuestType] = useState("");
-  const [Typeofaccommodation, setTypeofaccommodation] = useState("");
-  const [paymentMethod, setpaymentMethod] = useState("");
+  }, [props.ApiDate, bookedDates]);
 
   const handleChaletChange = (e) => {
     const selectedItemId = e.target.value;
-    console.log(selectedItemId);
     //Find the selected Chalet object
     const selectedChalet = ChaletsAPIdata.find(
       (item) => item.id === selectedItemId
@@ -331,19 +224,7 @@ const BookingAddModal = forwardRef((props, ref) => {
     }
   };
 
-  //============================Display all  Dates =====================================
-
-  const getDates = async () => {
-    fetch("http://localhost:8082/Booking")
-      .then((response) => response.json())
-      .then((data) => {
-        setReservationDates(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching reservation dates:", error);
-      });
-  };
-  const [totalPrice, setTotalPrice] = useState(0);
+  // selecte and remove other services handler
   const onSelectOtherService = (selectedList, selectedItem) => {
     const updatedSelections = selectedList.map((item) => ({
       id: item.id,
@@ -363,7 +244,6 @@ const BookingAddModal = forwardRef((props, ref) => {
     // Call calculateTotalPrice function
     calculateTotalPrice();
   };
-
   const onRemoveOtherService = (selectedList, removedItem) => {
     const updatedSelections = selectedList.map((item) => ({
       id: item.id,
@@ -378,7 +258,8 @@ const BookingAddModal = forwardRef((props, ref) => {
     setTotalPrice(totalPrice); // Assuming you have totalPrice state and setTotalPrice functi
     // Additional logic if needed
   };
-  const [totalPriceMeals, setTotalPriceMeals] = useState(0);
+
+  // on select and remove meals handler
   const onSelectMeals = (selectedList, selectedItem) => {
     const updatedSelections = selectedList.map((item) => ({
       id: item.id,
@@ -398,7 +279,6 @@ const BookingAddModal = forwardRef((props, ref) => {
     // Call calculateTotalPrice function
     calculateTotalPrice();
   };
-
   const onRemoveMeals = (selectedList, removedItem) => {
     const updatedSelections = selectedList.map((item) => ({
       id: item.id,
@@ -416,10 +296,89 @@ const BookingAddModal = forwardRef((props, ref) => {
     // Additional logic if needed
   };
 
+  // functions
+  // fetch chalets data
+  async function getChaletsData(params) {
+    try {
+      const response = await axios.get("http://localhost:8082/Chalets");
+      setChaletsAPIdata(response.data); // Store the fetched data in the state
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // fetch meals
+  async function getMeals() {
+    try {
+      const response = await axios.get("http://localhost:8082/Meals");
+      setMeals(response.data); // Store the fetched data in the state
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // fetch other services
+  async function getOtherServicesData() {
+    try {
+      const response = await axios.get("http://localhost:8082/OtherServices");
+      setOtherServicesAPIdata(response.data); // Store the fetched data in the state
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // fetch bookings dates
+  async function getDates() {
+    fetch("http://localhost:8082/Booking")
+      .then((response) => response.json())
+      .then((data) => {
+        setReservationDates(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching reservation dates:", error);
+      });
+  }
+
+  // post data
+  async function addData(value) {
+    setisloading(true);
+    try {
+      const formattedEntryDate = formatDate(dateRange.startDate);
+      const formattedExitDate = formatDate(dateRange.endDate);
+
+      const response = await axios
+        .post(
+          "http://localhost:8082/Booking",
+          {
+            ...value,
+            EntryDate: formattedEntryDate,
+            ExitDate: formattedExitDate,
+          },
+          {
+            headers: {
+              token: localStorage.getItem("tkn"),
+            },
+          }
+        )
+        .then((res) => swal("تمت الإضافة بنجاح"));
+      formikObj.resetForm();
+      formikObj.setFieldValue("EntryDate", null);
+      formikObj.setFieldValue("ExitDate", null);
+
+      handleClose();
+      props.getAllData();
+    } catch (error) {
+      console.error("حدث خطأ:", error);
+    }
+
+    setisloading(false);
+  }
+
+  // return the body of the component
   return (
     <Offcanvas
       show={addEmploye}
-      onHide={setAddEmploye}
+      onHide={handleClose}
       className="offcanvas-end customeoff"
       placement="end"
     >
@@ -970,4 +929,4 @@ const BookingAddModal = forwardRef((props, ref) => {
     </Offcanvas>
   );
 });
-export default BookingAddModal;
+export default BookingAddModel;
