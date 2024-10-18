@@ -68,7 +68,7 @@ const TheResortUpdateModel = forwardRef((props, ref) => {
     },
   });
 
-  // use effect
+  // set values
   useEffect(() => {
     // Update form values when resortData changes
     formikObj.setValues({
@@ -98,13 +98,6 @@ const TheResortUpdateModel = forwardRef((props, ref) => {
   // Function to show the modal
   useImperativeHandle(ref, () => ({
     showUpdateModal() {
-      // Set the values in Formik
-      formikObj.setValues({
-        ...props.resortData,
-        // Ensure latitude and longitude are set correctly
-        latitude: parseFloat(props.resortData.latitude),
-        longitude: parseFloat(props.resortData.longitude),
-      });
       setAddEmploye(true); // Show the modal
     },
   }));
@@ -252,6 +245,7 @@ const TheResortUpdateModel = forwardRef((props, ref) => {
     }
     setIsLoading(false);
   }
+
   // return the body of the component
   return (
     <Offcanvas

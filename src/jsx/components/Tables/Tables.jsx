@@ -18,6 +18,7 @@ export default function Tables({
   onStartDateChange,
   onEndDateChange,
   refresh,
+  deleteData,
 }) {
   // states
   const csvlink = {
@@ -37,11 +38,9 @@ export default function Tables({
       setCurrentPage(currentPage - 1);
     }
   }
-  function handleDelete(id) {
-    axios
-      .delete(`http://localhost:8082/Restore/${id}`)
-      .then((res) => {
-        console.log(res);
+  async function handleDelete(id) {
+    await deleteData(id)
+      .then(() => {
         refresh();
       })
       .catch((err) => {

@@ -10,7 +10,7 @@ const Resort = () => {
   const [APIdata, setAPIdata] = useState([]);
   const [updateResort, setUpdateResort] = useState([]);
   // refs
-  const employe = useRef();
+  const resort = useRef();
   const Update = useRef();
 
   // get all data
@@ -39,6 +39,11 @@ const Resort = () => {
     },
     [APIdata]
   );
+
+  // delete data
+  const deleteData = async (id) => {
+    await axios.delete(`http://localhost:8082/Restore/${id}`);
+  };
 
   // headers of the table
   const headersTitle = [
@@ -71,17 +76,18 @@ const Resort = () => {
       <Tables
         data={APIdata}
         headers={headersTitle}
-        employe={employe}
+        employe={resort}
         customCellRenderer={customCellRenderer}
         Title=" + Add Restore "
         update={Update}
         handleUpdate={handleUpdate}
         refresh={getAllData}
+        deleteData={deleteData}
       />
 
       {/* add data */}
       <TheRestoreModelAdd
-        ref={employe}
+        ref={resort}
         Title="Add Resort"
         getAllData={getAllData}
       />
